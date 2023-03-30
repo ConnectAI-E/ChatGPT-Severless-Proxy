@@ -1,19 +1,18 @@
-# ChatGPT-API-Proxy
-![GitHub](https://img.shields.io/github/license/Heng-Bian/ChatGPT-API-Proxy)
+# ChatGPT-Severless-Proxy
+![GitHub](https://img.shields.io/github/license/leizhenpeng/ChatGPT-Severless-Proxy)
 ![GitHub](https://img.shields.io/badge/build-pass-green)  
 A reverse proxy of https://api.openai.com that supports token load-balance and avoids token leakage
 
 openai api reference
 `https://platform.openai.com/docs/api-reference`
 ## Feature
-
 - simple, clean but efficent code
 - providing an authorization without openai token leakage
 - supproting token load-balance
 - avoiding the limitation of single openai token
 - removing invalid token automatically
 
-## Quick start
+## 本地开发
 ```nashorn js
 cd code
 mv config.example.yaml config.yaml
@@ -29,7 +28,8 @@ TARGET: https://api.openai.com
 go run main.go
 ```
 
-部署阿里云函数计算
+## 部署上线
+
 ```
 cd ..
 s deploy
