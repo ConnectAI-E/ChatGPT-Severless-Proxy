@@ -14,18 +14,32 @@ openai api reference
 - removing invalid token automatically
 
 ## Quick start
-For help
+```nashorn js
+cd code
+mv config.example.yaml config.yaml
 ```
-./ChatGPT-API-Proxy -help
 ```
-Start reverse proxy on port 8080 with your openai tokens
+OPENAI_KEY: sk-xxx,sk-xx
+AUTH_TOKEN: xxxxxxx
+PORT: 9000
+TARGET: https://api.openai.com
 ```
-./ChatGPT-API-Proxy -prot 8080 -auth YOUR_AUTHORIZATION -tokens YOUR_OPENAI_TOKEN_1,YOUR_OPENAI_TOKEN_2
+
 ```
+go run main.go
+```
+
+部署阿里云函数计算
+```
+cd ..
+s deploy
+```
+
+
 Use by cURL
 ```
 curl --location 'http://localhost:8080/v1/chat/completions' \
---header 'Authorization: YOUR_AUTHORIZATION' \
+--header 'Authorization: Bearer YOUR_AUTHORIZATION' \
 --header 'Content-Type: application/json' \
 --data '{
     "max_tokens": 250,
