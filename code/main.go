@@ -3,6 +3,8 @@ package main
 import (
 	"flag"
 	"fmt"
+	"github.com/spf13/pflag"
+	"github.com/spf13/viper"
 	"log"
 	"net/http"
 	"net/http/httputil"
@@ -13,18 +15,31 @@ import (
 )
 
 var (
-	port   = flag.String("port", "8080", "port to listen on")
-	auth   = flag.String("auth", "", "Authorization Header of reverse proxy")
-	target = flag.String("target", "https://api.openai.com", "ChatGPT API address")
-	tokens = flag.String("tokens", "", "comma separated ChatGPT API tokens")
+	cfg = pflag.StringP("config", "c", "./config.yaml",
+		"api server config file path.")
 )
+
+func LoadConfig() {
+	viper.SetConfigFile(*cfg)
+	if err := viper.ReadInConfig(); err != nil {
+		log.Fatalf("read config failed, err:%v", err)
+	}
+	viper.AutomaticEnv()
+}
 
 var count int64
 var lock sync.RWMutex
 
 func main() {
 	flag.Parse()
-	splits := strings.Split(*tokens, ",")
+	LoadConfig()
+
+	target := viper.GetString("TARGET")
+	port := viper.GetString("PORT")
+	auth := viper.GetString("AUTH_TOKEN")
+	tokensStr := viper.GetString("OPENAI_KEY")
+
+	splits := strings.Split(tokensStr, ",")
 	var tokens []string
 	for _, value := range splits {
 		value := strings.Trim(value, " ")
@@ -32,7 +47,7 @@ func main() {
 			tokens = append(tokens, value)
 		}
 	}
-	url, err := url.Parse(*target)
+	url, err := url.Parse(target)
 	if err != nil {
 		panic(err)
 	}
@@ -78,19 +93,28 @@ func main() {
 	}
 
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-		if *auth != "" && *auth != r.Header.Get("Authorization") {
+		authFromHeader := removeBearer(r.Header.Get("Authorization"))
+		if auth != "" && auth != authFromHeader {
 			w.WriteHeader(401)
+			//fmt.Println("Authorization header:", r.Header.Get("Authorization"))
 			fmt.Fprint(w, "No Authorization header for proxy server!")
 			return
 		}
 		proxy.ServeHTTP(w, r)
 	})
 
-	log.Println("Listen on port:" + *port)
+	log.Println("Listen on port:" + port)
 	log.Println("Running...")
 
-	err = http.ListenAndServe(":"+*port, nil)
+	err = http.ListenAndServe(":"+port, nil)
 	if err != nil {
 		panic(err)
 	}
+}
+
+func removeBearer(str string) string {
+	if strings.HasPrefix(str, "Bearer") {
+		return str[7:]
+	}
+	return str
 }

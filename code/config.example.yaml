@@ -1,0 +1,7 @@
+# openai
+OPENAI_KEY: sk-xxx,sk-xx
+AUTH_TOKEN: xxxxxxx
+PORT: 9000
+TARGET: https://api.openai.com
+
+
